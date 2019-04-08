@@ -5,7 +5,7 @@
 ```ts
 import * as assert from "assert";
 import { Result } from "@marionebl/result";
-import { yargsSchema } from "yargs-schema";
+import { configure } from "yargs-schema";
 
 interface Flags {
     a?: boolean;
@@ -33,8 +33,9 @@ const schema = {
 };
 
 const ae = assert.deepStrictEqual;
+const {parse} = configure<Flags>(schema);
 
-ae(yargsSchema<Flags>(['--b', '3'], schema), Result.Err(new Error('--a is required')));
-ae(yargsSchema<Flags>(['--b', 'something'], schema), Result.Err(new Error('--b most be a number')));
-ae(yargsSchema<Flags>(['--a', '1'], schema), Result.Ok({ a: 1 }));
+ae(parse(['--b', '3']), Result.Err(new Error('--a is required')));
+ae(parse(['--b', 'something']), Result.Err(new Error('--b most be a number')));
+ae(parse(['--a', '1']), Result.Ok({ a: 1 }));
 ```
