@@ -1,0 +1,24 @@
+{
+  "name": "yargs-schema",
+  "version": "1.0.0",
+  "description": "Define command line flags in JSONSchema",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "author": "Mario Nebl <hello@mario-nebl.de>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "jest": "^24.7.1",
+    "jest-cli": "^24.7.1",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.4.2"
+  },
+  "dependencies": {
+    "@marionebl/result": "^1.0.5",
+    "@types/ajv": "^1.0.0",
+    "@types/yargs-parser": "^11.0.2",
+    "ajv": "^6.10.0",
+    "json-schema-typed": "^7.0.0",
+    "yargs-parser": "^13.0.0"
+  }
+}
