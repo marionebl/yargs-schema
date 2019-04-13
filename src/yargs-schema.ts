@@ -23,7 +23,17 @@ export function configure<T>(rawOptions?: YargsSchemaOptions): YargsSchemaParser
     schema.properties = { ...schema.properties, _: _ || { type: 'array', items: [], additionalItems: false } }
   }
 
+  const properties = schema.properties || {};
+
   const config = {
+    array: Object.keys(properties)
+      .map(propName => [propName, properties[propName]])
+      .filter(entry => {
+        const s = entry[1];
+        return typeof s !== 'string' && s.type === 'array'
+      })
+      .map(entry => entry[0])
+      .filter((name): name is string => typeof name === 'string'),
     configuration: {
       "parse-numbers": false
     }

@@ -38,18 +38,19 @@ test("schema defining _ items returns Ok for valid input", async () => {
   const { parse } = configure({
     schema: {
       properties: {
-        _: { type: "array", items: [{ type: "string", enum: ["a", "b", "c"], additionalItems: false }] }
+        _: {
+          type: "array",
+          items: [
+            { type: "string", enum: ["a", "b", "c"], additionalItems: false }
+          ]
+        }
       }
     }
   });
   const result = parse(["a", "b", "c"]);
   expect(await result.sync()).toEqual(
     await ok({
-      _: [
-        "a",
-        "b",
-        "c"
-      ]
+      _: ["a", "b", "c"]
     })
   );
 });
@@ -58,11 +59,15 @@ test("schema defining _ items returns Err for single invalid input", async () =>
   const { parse } = configure({
     schema: {
       properties: {
-        _: { type: "array", items: [{ type: "string", enum: ["a", "b", "c"] }], additionalItems: false }
+        _: {
+          type: "array",
+          items: [{ type: "string", enum: ["a", "b", "c"] }],
+          additionalItems: false
+        }
       }
     }
   });
-  
+
   const result = parse(["a", "b", "c", "d"]);
 
   expect(await result.sync()).toEqual(
@@ -74,11 +79,15 @@ test("schema defining _ items returns Err for multiple invalid inputs", async ()
   const { parse } = configure({
     schema: {
       properties: {
-        _: { type: "array", items: [{ type: "string", enum: ["a", "b", "c"] }], additionalItems: false }
+        _: {
+          type: "array",
+          items: [{ type: "string", enum: ["a", "b", "c"] }],
+          additionalItems: false
+        }
       }
     }
   });
-  
+
   const result = parse(["a", "0", "b", "c", "d"]);
 
   expect(await result.sync()).toEqual(
@@ -91,16 +100,18 @@ test("schema defining number flag returns Err for string", async () => {
     schema: {
       properties: {
         a: {
-          type: 'number'
+          type: "number"
         }
       }
     }
   });
-  
+
   const result = parse(["-a", "Hello, World"]);
 
   expect(await result.sync()).toEqual(
-    await err('flag -a must be of type "number", received "Hello, World" of type "string"')
+    await err(
+      'flag -a must be of type "number", received "Hello, World" of type "string"'
+    )
   );
 });
 
@@ -111,11 +122,11 @@ test("schema defining enum flag returns Err for mismatches", async () => {
         a: {
           anyOf: [
             {
-              type: 'string',
-              enum: ['a', 'b', 'c']
+              type: "string",
+              enum: ["a", "b", "c"]
             },
             {
-              type: 'number',
+              type: "number",
               enum: [0, 1, 2]
             }
           ]
@@ -123,10 +134,60 @@ test("schema defining enum flag returns Err for mismatches", async () => {
       }
     }
   });
-  
+
   const result = parse(["-a", "3"]);
 
   expect(await result.sync()).toEqual(
-    await err('flag -a must be any of "a, b, c, 0, 1, 2", received "3" of type "string"')
+    await err(
+      'flag -a must be any of "a, b, c, 0, 1, 2", received "3" of type "string"'
+    )
   );
 });
+
+test("schema defining plain flag returns Err for array", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "string"
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "3", "-a", "Hello", "-a", "World"]);
+
+  expect(await result.sync()).toEqual(
+    await err(
+      'flag -a must be of type "string", received ["3","Hello","World"] of type "array"'
+    )
+  );
+});
+
+
+test("schema defining array flag returns Ok for single pass", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "array",
+          items: [
+            {
+              type: "string"
+            }
+          ]
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "3"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: ["3"]
+    })
+  );
+});
+

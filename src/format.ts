@@ -21,10 +21,10 @@ function formatFlagError(error: jsonschema.ValidationError): string {
     case "additionalProperties":
       return `unknown flag ${formatFlag(error.argument)} is not allowed`;
     case "type":
-      return `flag ${formatFlag(prop)} must be of type "${error.argument.join(', ')}", received ${JSON.stringify(error.instance)} of type "${typeof error.instance}"`;
+      return `flag ${formatFlag(prop)} must be of type "${error.argument.join(', ')}", received ${JSON.stringify(error.instance)} of type "${formatType(error.instance)}"`;
     case "anyOf":
       const types = (error.schema as any).anyOf.map(formatSchema); 
-      return `flag ${formatFlag(prop)} must be any of "${types.join(', ')}", received ${JSON.stringify(error.instance)} of type "${typeof error.instance}"`;
+      return `flag ${formatFlag(prop)} must be any of "${types.join(', ')}", received ${JSON.stringify(error.instance)} of type "${formatType(error.instance)}"`;
     return '';
     default:
       return `unknown validation error "${error.name}": ${error.message}`;
@@ -42,6 +42,14 @@ function formatPositionalError(error: jsonschema.ValidationError): string {
     default:
       return `unknown validation error "${error.name}": ${error.message}`;
   }
+}
+
+function formatType(instance: unknown): string {
+  if (Array.isArray(instance)) {
+    return 'array'
+  }
+
+  return typeof instance;
 }
 
 function formatFlag(flag: string) {
