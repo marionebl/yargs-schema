@@ -50,6 +50,14 @@ export function configure<T>(
       })
       .map(entry => entry[0])
       .filter((name): name is string => typeof name === "string"),
+    boolean: Object.keys(properties)
+      .map(propName => [propName, properties[propName]])
+      .filter(entry => {
+        const s = entry[1];
+        return typeof s !== "string" && s.type === "boolean";
+      })
+      .map(entry => entry[0])
+      .filter((name): name is string => typeof name === "string"),
     configuration: {
       "parse-numbers": false,
       "dot-notation": false
@@ -65,10 +73,12 @@ export function configure<T>(
 
       return validation.valid
         ? Result.Ok(parsed as T)
-        : Result.Err(format({
-          errors: validation.errors,
-          argv
-        }));
+        : Result.Err(
+            format({
+              errors: validation.errors,
+              argv
+            })
+          );
     }
   };
 }

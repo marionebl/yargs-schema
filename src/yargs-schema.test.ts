@@ -213,3 +213,108 @@ test("schema defining numbers flag returns Ok for passed number", async () => {
   );
 });
 
+test("schema defining boolean flag parses number value as input", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "boolean"
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "0"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: ["0"],
+      a: true
+    })
+  );
+});
+
+test("schema defining boolean flag returns Ok for --flag", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "boolean"
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: true
+    })
+  );
+});
+
+
+test("schema defining boolean flag returns Ok for --flag=true", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "boolean"
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "true"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: true
+    })
+  );
+});
+
+test("schema defining boolean flag returns Ok for --flag=false", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "boolean"
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "true"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: true
+    })
+  );
+});
+
+test("schema defining boolean flag returns Ok for --no-flag", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "boolean"
+        }
+      }
+    }
+  });
+
+  const result = parse(["--no-a"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: false
+    })
+  );
+});
