@@ -1,32 +1,44 @@
 import { Result } from "@marionebl/result";
-import * as Ajv from "ajv";
+import * as jsonschema from "jsonschema";
 import { Arguments } from "yargs-parser";
 import * as yargsParser from "yargs-parser";
-import { JSONSchema } from "./json-schema";
+import { format } from "./format";
 
-export interface YargsSchemaParser<T = Arguments> {
-  parse(argv: string[]): Result<T>;
+export type YargsSchema = jsonschema.Schema;
+
+export interface YargsSchemaOptions {
+  schema?: YargsSchema;
 }
 
-export function configure<T>(schema: JSONSchema): YargsSchemaParser<T> {
+export interface YargsSchemaParser<T = Arguments> {
+  parse(argv: string[]): Result<T, unknown>;
+}
+
+export function configure<T>(rawOptions?: YargsSchemaOptions): YargsSchemaParser<T> {
+  const options = typeof rawOptions === 'undefined' ? {} : rawOptions;
+  const schema = typeof options.schema === 'undefined' ? {} : options.schema;
+
+  if (schema.additionalProperties === false) {
+    const _ = typeof schema.properties !== 'undefined' ? schema.properties._ : undefined; 
+    schema.properties = { ...schema.properties, _: _ || { type: 'array', items: [], additionalItems: false } }
+  }
+
   const config = {
     configuration: {
       "parse-numbers": false
     }
   };
 
-  const ajv = new Ajv();
-  const validate = ajv.compile(schema);
-
   const parse = (argv: string[]) => yargsParser(argv, config);
 
   return {
     parse(argv) {
         const parsed = parse(argv) as unknown;
-        const valid = validate(parsed);
-        return valid 
+        const validation = jsonschema.validate(parsed, schema);
+
+        return validation.valid 
             ? Result.Ok(parsed as T) 
-            : Result.Err(new Error(ajv.errorsText()));
+            : Result.Err(format(validation));
     }
   };
 }

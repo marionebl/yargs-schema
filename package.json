@@ -14,11 +14,11 @@
     "typescript": "^3.4.2"
   },
   "dependencies": {
-    "@marionebl/result": "^1.0.5",
-    "@types/ajv": "^1.0.0",
+    "@marionebl/result": "^1.0.8",
+    "@types/jsonschema": "^1.1.1",
     "@types/yargs-parser": "^11.0.2",
-    "ajv": "^6.10.0",
     "json-schema-typed": "^7.0.0",
+    "jsonschema": "^1.2.4",
     "yargs-parser": "^13.0.0"
   }
 }
