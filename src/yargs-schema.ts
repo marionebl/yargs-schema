@@ -34,30 +34,9 @@ export function configure<T>(
   const properties = schema.properties || {};
 
   const config = {
-    array: Object.keys(properties)
-      .map(propName => [propName, properties[propName]])
-      .filter(entry => {
-        const s = entry[1];
-        return typeof s !== "string" && s.type === "array";
-      })
-      .map(entry => entry[0])
-      .filter((name): name is string => typeof name === "string"),
-    number: Object.keys(properties)
-      .map(propName => [propName, properties[propName]])
-      .filter(entry => {
-        const s = entry[1];
-        return typeof s !== "string" && s.type === "number";
-      })
-      .map(entry => entry[0])
-      .filter((name): name is string => typeof name === "string"),
-    boolean: Object.keys(properties)
-      .map(propName => [propName, properties[propName]])
-      .filter(entry => {
-        const s = entry[1];
-        return typeof s !== "string" && s.type === "boolean";
-      })
-      .map(entry => entry[0])
-      .filter((name): name is string => typeof name === "string"),
+    array: getTypedPropNames("array", schema),
+    number: getTypedPropNames("number", schema),
+    boolean: getTypedPropNames("boolean", schema),
     configuration: {
       "parse-numbers": false,
       "dot-notation": false
@@ -81,4 +60,17 @@ export function configure<T>(
           );
     }
   };
+}
+
+function getTypedPropNames(type: string, schema: jsonschema.Schema): string[] {
+  const props = schema.properties || {};
+
+  return Object.keys(props)
+    .map(propName => [propName, props[propName]])
+    .filter(entry => {
+      const s = entry[1];
+      return typeof s !== "string" && s.type === type;
+    })
+    .map(entry => entry[0])
+    .filter((name): name is string => typeof name === "string");
 }
