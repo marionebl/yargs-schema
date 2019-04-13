@@ -191,3 +191,25 @@ test("schema defining array flag returns Ok for single pass", async () => {
   );
 });
 
+
+test("schema defining numbers flag returns Ok for passed number", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "number"
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "3"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: 3
+    })
+  );
+});
+

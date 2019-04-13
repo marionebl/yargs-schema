@@ -14,13 +14,21 @@ export interface YargsSchemaParser<T = Arguments> {
   parse(argv: string[]): Result<T, unknown>;
 }
 
-export function configure<T>(rawOptions?: YargsSchemaOptions): YargsSchemaParser<T> {
-  const options = typeof rawOptions === 'undefined' ? {} : rawOptions;
-  const schema = typeof options.schema === 'undefined' ? {} : options.schema;
+export function configure<T>(
+  rawOptions?: YargsSchemaOptions
+): YargsSchemaParser<T> {
+  const options = typeof rawOptions === "undefined" ? {} : rawOptions;
+  const schema = typeof options.schema === "undefined" ? {} : options.schema;
 
   if (schema.additionalProperties === false) {
-    const _ = typeof schema.properties !== 'undefined' ? schema.properties._ : undefined; 
-    schema.properties = { ...schema.properties, _: _ || { type: 'array', items: [], additionalItems: false } }
+    const _ =
+      typeof schema.properties !== "undefined"
+        ? schema.properties._
+        : undefined;
+    schema.properties = {
+      ...schema.properties,
+      _: _ || { type: "array", items: [], additionalItems: false }
+    };
   }
 
   const properties = schema.properties || {};
@@ -30,10 +38,18 @@ export function configure<T>(rawOptions?: YargsSchemaOptions): YargsSchemaParser
       .map(propName => [propName, properties[propName]])
       .filter(entry => {
         const s = entry[1];
-        return typeof s !== 'string' && s.type === 'array'
+        return typeof s !== "string" && s.type === "array";
       })
       .map(entry => entry[0])
-      .filter((name): name is string => typeof name === 'string'),
+      .filter((name): name is string => typeof name === "string"),
+    number: Object.keys(properties)
+      .map(propName => [propName, properties[propName]])
+      .filter(entry => {
+        const s = entry[1];
+        return typeof s !== "string" && s.type === "number";
+      })
+      .map(entry => entry[0])
+      .filter((name): name is string => typeof name === "string"),
     configuration: {
       "parse-numbers": false
     }
@@ -43,12 +59,15 @@ export function configure<T>(rawOptions?: YargsSchemaOptions): YargsSchemaParser
 
   return {
     parse(argv) {
-        const parsed = parse(argv) as unknown;
-        const validation = jsonschema.validate(parsed, schema);
+      const parsed = parse(argv) as unknown;
+      const validation = jsonschema.validate(parsed, schema);
 
-        return validation.valid 
-            ? Result.Ok(parsed as T) 
-            : Result.Err(format(validation));
+      return validation.valid
+        ? Result.Ok(parsed as T)
+        : Result.Err(format({
+          errors: validation.errors,
+          argv
+        }));
     }
   };
 }
