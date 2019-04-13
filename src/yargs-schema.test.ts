@@ -18,7 +18,7 @@ test("empty schema passes flags", async () => {
   );
 });
 
-test("empty schema forbdding additional props returns Err for -a", async () => {
+test("empty schema forbidding additional props returns Err for -a", async () => {
   const { parse } = configure({ schema: { additionalProperties: false } });
   const result = parse(["-a"]);
   expect(await result.sync()).toEqual(
@@ -26,7 +26,7 @@ test("empty schema forbdding additional props returns Err for -a", async () => {
   );
 });
 
-test("empty schema forbdding additional props returns Err for input", async () => {
+test("empty schema forbidding additional props returns Err for input", async () => {
   const { parse } = configure({ schema: { additionalProperties: false } });
   const result = parse(["a"]);
   expect(await result.sync()).toEqual(
@@ -54,7 +54,7 @@ test("schema defining _ items returns Ok for valid input", async () => {
   );
 });
 
-test("schema defining _ items returns Error for single invalid input", async () => {
+test("schema defining _ items returns Err for single invalid input", async () => {
   const { parse } = configure({
     schema: {
       properties: {
@@ -70,7 +70,7 @@ test("schema defining _ items returns Error for single invalid input", async () 
   );
 });
 
-test("schema defining _ items returns Error for multiple invalid inputs", async () => {
+test("schema defining _ items returns Err for multiple invalid inputs", async () => {
   const { parse } = configure({
     schema: {
       properties: {
@@ -83,5 +83,23 @@ test("schema defining _ items returns Error for multiple invalid inputs", async 
 
   expect(await result.sync()).toEqual(
     await err('unknown positionals "0, d" are not allowed')
+  );
+});
+
+test("schema defining number flag returns Err for string", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: 'number'
+        }
+      }
+    }
+  });
+  
+  const result = parse(["-a", "Hello, World"]);
+
+  expect(await result.sync()).toEqual(
+    await err('flag -a must be of type "number", received "Hello, World" of type "string"')
   );
 });

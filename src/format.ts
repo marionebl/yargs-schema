@@ -18,6 +18,9 @@ function formatFlagError(error: jsonschema.ValidationError): string {
   switch (error.name) {
     case "additionalProperties":
       return `unknown flag ${formatFlag(error.argument)} is not allowed`;
+    case "type":
+      const prop = error.property.replace('instance.', '');
+      return `flag ${formatFlag(prop)} must be of type "${error.argument.join(', ')}", received ${JSON.stringify(error.instance)} of type "${typeof error.instance}"`;
     default:
       return `unknown validation error "${error.name}": ${error.message}`;
   }
