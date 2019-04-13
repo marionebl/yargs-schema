@@ -7,17 +7,33 @@ export interface Formatable {
 export function format(formatable: Formatable): string {
     return formatable.errors
         .map(error => {
-            switch (error.name) {
-                case 'additionalProperties':
-                    return `unknown flag ${formatFlag(error.argument)} is not allowed`;
-                default:
-                    return `Unknown validation error: ${error.message}`;
-            }
+            return error.property === 'instance._' ? formatPositionalError(error) : formatFlagError(error)
         })
         .join('\n');
 }
 
-export function formatFlag(flag: string) {
+function formatFlagError(error: jsonschema.ValidationError): string {
+    switch (error.name) {
+        case 'additionalProperties':
+            return `unknown flag ${formatFlag(error.argument)} is not allowed`;
+        default:
+            return `unknown validation error "${error.name}": ${error.message}`;
+    }
+}
+
+function formatPositionalError(error: jsonschema.ValidationError): string {
+    switch (error.name) {
+        case 'items':
+            const mulitple = Array.isArray(error.argument) && error.argument.length > 0;
+            const subject = mulitple ? 'positionals' : 'positional';
+            const verb = mulitple ? 'are' : 'is';
+            return `unknown ${subject} "${error.instance.join(', ')}" ${verb} not allowed`;
+        default:
+            return `unknown validation error "${error.name}": ${error.message}`;
+    }
+}
+
+function formatFlag(flag: string) {
     return flag.length === 1
         ? `-${flag}`
         : `--${flag}`;

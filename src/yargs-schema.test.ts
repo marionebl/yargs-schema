@@ -17,10 +17,18 @@ test("empty schema passes flags", async () => {
   );
 });
 
-test("empty schema forbdding additional props returns Err", async () => {
+test("empty schema forbdding additional props returns Err for -a", async () => {
   const { parse } = configure({ schema: { additionalProperties: false } });
   const result = parse(["-a"]);
   expect(await result.sync()).toEqual(
     await err("unknown flag -a is not allowed")
+  );
+});
+
+test("empty schema forbdding additional props returns Err for input", async () => {
+  const { parse } = configure({ schema: { additionalProperties: false } });
+  const result = parse(["a"]);
+  expect(await result.sync()).toEqual(
+    await err("unknown positional \"a\" is not allowed")
   );
 });
