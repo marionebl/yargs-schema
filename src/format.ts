@@ -28,7 +28,8 @@ function formatFlagError(
     case "type":
       const instance = yargsParser(argv, {
         configuration: {
-          "parse-numbers": false
+          "parse-numbers": false,
+          "dot-notation": false
         }
       });
       return `flag ${formatFlag(prop)} must be of type "${error.argument.join(

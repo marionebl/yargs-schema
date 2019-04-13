@@ -51,7 +51,8 @@ export function configure<T>(
       .map(entry => entry[0])
       .filter((name): name is string => typeof name === "string"),
     configuration: {
-      "parse-numbers": false
+      "parse-numbers": false,
+      "dot-notation": false
     }
   };
 
