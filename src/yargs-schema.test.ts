@@ -103,3 +103,30 @@ test("schema defining number flag returns Err for string", async () => {
     await err('flag -a must be of type "number", received "Hello, World" of type "string"')
   );
 });
+
+test("schema defining enum flag returns Err for mismatches", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          anyOf: [
+            {
+              type: 'string',
+              enum: ['a', 'b', 'c']
+            },
+            {
+              type: 'number',
+              enum: [0, 1, 2]
+            }
+          ]
+        }
+      }
+    }
+  });
+  
+  const result = parse(["-a", "3"]);
+
+  expect(await result.sync()).toEqual(
+    await err('flag -a must be any of "a, b, c, 0, 1, 2", received "3" of type "string"')
+  );
+});

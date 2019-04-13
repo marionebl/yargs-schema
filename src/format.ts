@@ -15,12 +15,17 @@ export function format(formatable: Formatable): string {
 }
 
 function formatFlagError(error: jsonschema.ValidationError): string {
+  const prop = error.property.replace('instance.', '');
+
   switch (error.name) {
     case "additionalProperties":
       return `unknown flag ${formatFlag(error.argument)} is not allowed`;
     case "type":
-      const prop = error.property.replace('instance.', '');
       return `flag ${formatFlag(prop)} must be of type "${error.argument.join(', ')}", received ${JSON.stringify(error.instance)} of type "${typeof error.instance}"`;
+    case "anyOf":
+      const types = (error.schema as any).anyOf.map(formatSchema); 
+      return `flag ${formatFlag(prop)} must be any of "${types.join(', ')}", received ${JSON.stringify(error.instance)} of type "${typeof error.instance}"`;
+    return '';
     default:
       return `unknown validation error "${error.name}": ${error.message}`;
   }
@@ -41,4 +46,12 @@ function formatPositionalError(error: jsonschema.ValidationError): string {
 
 function formatFlag(flag: string) {
   return flag.length === 1 ? `-${flag}` : `--${flag}`;
+}
+
+function formatSchema(schema: jsonschema.Schema): string {
+  if (Array.isArray(schema.enum)) {
+    return schema.enum.join(', ')
+  }
+
+  return Array.isArray(schema.type) ? schema.type.join(', ') : schema.type!;
 }
