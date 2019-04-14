@@ -1,5 +1,7 @@
 # yargs-schema
 
+Configure and validate `yargs-parser` output with JSONSchema.
+
 ## Example
 
 ```ts
