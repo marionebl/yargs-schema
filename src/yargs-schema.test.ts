@@ -27,7 +27,8 @@ test("empty schema forbidding additional props returns Err for -a", async () => 
 });
 
 test("empty schema forbidding additional props returns Err for input", async () => {
-  const { parse } = configure({ schema: { additionalProperties: false } });
+  const { parse, config } = configure({ schema: { additionalProperties: false } });
+
   const result = parse(["a"]);
   expect(await result.sync()).toEqual(
     await err('unknown positional "a" is not allowed')
@@ -191,6 +192,57 @@ test("schema defining array flag returns Ok for single pass", async () => {
   );
 });
 
+test("schema defining array flag returns Ok for multiples passes", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "array",
+          items: [
+            {
+              type: "string"
+            }
+          ]
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "3", "-a", "4"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: ["3", "4"]
+    })
+  );
+});
+
+test("schema defining number array flag returns Ok for multiples passes", async () => {
+  const { parse } = configure({
+    schema: {
+      properties: {
+        a: {
+          type: "array",
+          items: [
+            {
+              type: "number"
+            }
+          ]
+        }
+      }
+    }
+  });
+
+  const result = parse(["-a", "3", "-a", "4"]);
+
+  expect(await result.sync()).toEqual(
+    await ok({
+      _: [],
+      a: [3, 4]
+    })
+  );
+});
 
 test("schema defining numbers flag returns Ok for passed number", async () => {
   const { parse } = configure({
