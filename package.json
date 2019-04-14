@@ -1,7 +1,7 @@
 {
   "name": "yargs-schema",
   "version": "1.0.0",
-  "description": "Define command line flags in JSONSchema",
+  "description": "Configure and validate `yargs-parser` output with JSONSchema",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Mario Nebl <hello@mario-nebl.de>",
